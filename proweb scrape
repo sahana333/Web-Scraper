@@ -1,0 +1,66 @@
+import requests
+from bs4 import BeautifulSoup
+import time
+
+def scrape_product_information(keyword):
+    # Replace the URLs with the actual URLs of e-commerce websites that sell the product
+    urls = [
+        'https://www.amazon.in/?&tag=googhydrabk1-21&ref=pd_sl_7hz2t19t5c_e&adgrpid=155259815513&hvpone=&hvptwo=&hvadid=678802104188&hvpos=&hvnetw=g&hvrand=17699969519176213764&hvqmt=e&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9061895&hvtargid=kwd-10573980&hydadcr=14453_2371562' + keyword,
+        '' + keyword,
+        # Add more URLs as needed
+    ]
+
+    product_data = []
+    
+    for url in urls:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+        response = requests.get(url, headers=headers)
+
+    
+
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            # Modify the selectors based on the structure of the website
+            products = soup.find_all('div', class_='product-item')
+
+            for product in products:
+                name = product.find('span', class_='product-name').text.strip()
+                price = product.find('span', class_='product-price').text.strip()
+             
+                # Add more details if needed (e.g., store name, product link)
+
+                product_data.append({
+                    'name': name,
+                    'price': price,
+                    'store': url,
+                })
+            time.sleep(3)
+
+        else:
+            print(f"Failed to retrieve data from {url}. Status code: {response.status_code}")
+
+    return product_data
+
+def sort_products_by_price(products):
+    # Sort the products by price (assuming price is in a numerical format)
+    sorted_products = sorted(products, key=lambda x: float(x['price'].replace('$', '').replace(',', '')))
+
+    return sorted_products
+
+# Set the keyword for the product you are searching for
+product_keyword = 'https://dress'
+
+# Scrape product information
+product_info = scrape_product_information(product_keyword)
+
+if product_info:
+    # Sort products by price
+    sorted_product_info = sort_products_by_price(product_info)
+
+    # Display the sorted product information
+    for idx, product in enumerate(sorted_product_info, start=1):
+        print(f"{idx}. {product['name']} - {product['price']} - {product['store']}")
+else:
+    print("No product information found.")
